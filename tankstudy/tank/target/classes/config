@@ -1,0 +1,4 @@
+#tank count in init
+initTankCount=10
+goodfs=com.mashibing.tank.FourDirFireStrategy
+badfs=com.mashibing.tank.DefaultFireStrategy
