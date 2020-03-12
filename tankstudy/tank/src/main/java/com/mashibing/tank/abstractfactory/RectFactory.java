@@ -4,6 +4,8 @@ import com.mashibing.tank.Dir;
 import com.mashibing.tank.Group;
 import com.mashibing.tank.TankFrame;
 
+import java.util.UUID;
+
 public class RectFactory extends GameFactory {
     @Override
     public BaseTank createTank(int x, int y, Dir dir, Group group, TankFrame tf) {
@@ -16,7 +18,7 @@ public class RectFactory extends GameFactory {
     }
 
     @Override
-    public BaseBullet createBullet(int x, int y, Dir dir, Group group, TankFrame tf) {
+    public BaseBullet createBullet(UUID playerId, int x, int y, Dir dir, Group group, TankFrame tf) {
         return new RectBullet(x,y,dir,group,tf);
     }
 }

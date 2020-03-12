@@ -1,9 +1,11 @@
 package com.mashibing.tank;
 
 import com.mashibing.tank.abstractfactory.BaseTank;
+import com.mashibing.tank.net.TankJoinMsg;
 
 import java.awt.*;
 import java.util.Random;
+import java.util.UUID;
 
 public class Tank extends BaseTank {
     int x,y;
@@ -12,11 +14,26 @@ public class Tank extends BaseTank {
     public static int WIDTH = ResourceMgr.goodTankU.getWidth();
     public static int HEIGHT = ResourceMgr.goodTankU.getHeight();
     private boolean moving = true;
-    private boolean living = true;
+
     TankFrame tf = null;
     private Random random = new Random();
     private Group group = Group.BAD;
     FireStrategy fs;
+    UUID id = UUID.randomUUID();
+
+    public Tank(TankJoinMsg msg) {
+        this.x = msg.x;
+        this.y = msg.y;
+        this.dir = msg.dir;
+        this.moving = msg.moving;
+        this.group = msg.group;
+        this.id = msg.id;
+
+        rect.x = this.x;
+        rect.y = this.y;
+        rect.width = WIDTH;
+        rect.height = HEIGHT;
+    }
 
     public boolean isMoving() {
         return moving;
@@ -69,9 +86,12 @@ public class Tank extends BaseTank {
     @Override
     public void paint(Graphics g) {
         if (!living){
-            tf.tanks.remove(this);
+            TankFrame.INSTENCE.tanks.remove(this.id);
         };
-
+        Color c = g.getColor();
+        g.setColor(Color.YELLOW);
+        g.drawString(id.toString(),this.x,this.y - 10);
+        g.setColor(c);
 
         switch(dir){
             case LEFT:
@@ -150,13 +170,14 @@ public class Tank extends BaseTank {
 
         Dir[] dirs = Dir.values();
         for(Dir dir: dirs){
-            tf.gf.createBullet(bX,bY,dir,getGroup(),tf);
+            TankFrame.INSTENCE.gf.createBullet(id,bX,bY,dir,getGroup(),TankFrame.INSTENCE);
         }
 
         if (getGroup() == Group.GOOD) new Thread(()->new Audio("audio/tank_fire.wav").play()).start();
 
     }
 
+    @Override
     public int getX() {
         return x;
     }
@@ -165,6 +186,7 @@ public class Tank extends BaseTank {
         this.x = x;
     }
 
+    @Override
     public int getY() {
         return y;
     }
@@ -173,6 +195,7 @@ public class Tank extends BaseTank {
         this.y = y;
     }
 
+    @Override
     public void die() {
         this.living = false;
     }
@@ -184,5 +207,14 @@ public class Tank extends BaseTank {
 
     public void setGroup(Group group) {
         this.group = group;
+    }
+
+    @Override
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 }

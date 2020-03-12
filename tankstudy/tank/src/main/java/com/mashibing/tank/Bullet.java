@@ -2,8 +2,11 @@ package com.mashibing.tank;
 
 import com.mashibing.tank.abstractfactory.BaseBullet;
 import com.mashibing.tank.abstractfactory.BaseTank;
+import com.mashibing.tank.net.Client;
+import com.mashibing.tank.net.TankDieMsg;
 
 import java.awt.*;
+import java.util.UUID;
 
 public class Bullet extends BaseBullet {
     private static final int SPEED = 10;
@@ -15,10 +18,11 @@ public class Bullet extends BaseBullet {
     private TankFrame tf = null;
     private Group group = Group.BAD;
     public Rectangle rect = new Rectangle();
+    private UUID playerId;
 
 
-
-    public Bullet(int x, int y, Dir dir, Group group,TankFrame tf) {
+    public Bullet(UUID playerId, int x, int y, Dir dir, Group group,TankFrame tf) {
+        this.playerId = playerId;
         this.x = x;
         this.y = y;
         this.dir = dir;
@@ -35,7 +39,7 @@ public class Bullet extends BaseBullet {
     @Override
     public void paint(Graphics g){
         if(!live){
-            tf.bullets.remove(this);
+            TankFrame.INSTENCE.bullets.remove(this);
         }
         switch(dir){
 
@@ -81,15 +85,17 @@ public class Bullet extends BaseBullet {
 
     @Override
     public void collideWith(BaseTank tank) {
+        //if(this.playerId.equals(tank.getId())){return;}
         if (this.group == tank.getGroup()){
             return;
         }
-        if (this.rect.intersects(tank.rect)){
+        if (this.live && tank.living && this.rect.intersects(tank.rect)){
             tank.die();
             this.die();
             int eX = tank.getX() + Tank.WIDTH/2 - Explode.WIDTH/2;
             int eY = tank.getY() + Tank.HEIGHT/2 - Explode.HEIGHT/2;
-            tf.explodes.add(tf.gf.createExplode(eX,eY,tf));
+            TankFrame.INSTENCE.explodes.add(TankFrame.INSTENCE.gf.createExplode(eX,eY,TankFrame.INSTENCE));
+            Client.INSTANCE.send(new TankDieMsg((Tank)tank));
         }
     }
 
